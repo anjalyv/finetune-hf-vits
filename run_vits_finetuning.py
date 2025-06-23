@@ -520,6 +520,31 @@ def compute_val_metrics_and_losses(
 
     return val_losses
 
+def modify_training_args(config_template):
+    with open(config_template) as f:
+        config = json.load(f)
+
+    config["project_name"] = os.getenv("project_name")
+    config["report_to"] = "mlflow"
+    config["output_dir"] = os.getenv("output_dir")
+    config["dataset_name"] = os.getenv("dataset_name")
+    config["dataset_config_name"] = os.getenv("dataset_config_name")
+    config["audio_column_name"] = os.getenv("audio_column_name")
+    config["text_column_name"] = os.getenv("text_column_name")
+    config["train_split_name"] = os.getenv("train_split_name")
+    config["eval_split_name"] = os.getenv("eval_split_name")
+    config["model_name_or_path"] = os.getenv("model_name_or_path")
+    config["full_generation_sample_text"] = ""
+    config["push_to_hub"] = False
+    config["hub_model_id"] = ""
+    config["num_train_epochs"] = 1
+    lang = os.getenv("dataset_config_name")
+
+    new_config_file = f"training_config_examples/finetune_{lang}.json"
+    with open(new_config_file, "w") as f:
+        json.dump(config, f, indent=2)
+    return new_config_file
+
 
 def main():
     # 1. Parse input arguments
@@ -531,7 +556,8 @@ def main():
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
-        model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
+        new_config_file = modify_training_args(os.path.abspath(sys.argv[1]))
+        model_args, data_args, training_args = parser.parse_json_file(json_file=new_config_file)
         print("model_args",model_args )
         print("data_args",data_args )
         print("training_args",training_args )
