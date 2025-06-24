@@ -16,6 +16,7 @@ import numpy as np
 import torch
 import os
 import json
+import mlflow
 
 from accelerate import Accelerator, DistributedDataParallelKwargs
 from accelerate.utils import ProjectConfiguration, is_wandb_available, set_seed
@@ -40,6 +41,18 @@ from utils import plot_alignment_to_numpy, plot_spectrogram_to_numpy, VitsDiscri
 
 if is_wandb_available():
     import wandb
+
+
+experiment_name = os.getenv("project_name")
+mlflow_tracking_uri = os.getenv("mlflow_tracking_uri")
+
+mlflow.set_tracking_uri(remote_server_uri)
+
+if not mlflow.get_experiment_by_name(experiment_name):
+    mlflow.create_experiment(experiment_name)
+experiment = mlflow.set_experiment(experiment_name)
+print('\n......... MLflow exp info ...........\n')
+print(experiment)
 
 
 ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=False)
@@ -551,6 +564,7 @@ def modify_training_args(config_template):
 
 
 def main():
+    mlflow.start_run(experiment_id=experiment.experiment_id)
     # 1. Parse input arguments
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
@@ -1518,6 +1532,8 @@ def main():
         tokenizer.push_to_hub(training_args.hub_model_id)
 
     logger.info("***** Training / Inference Done *****")
+    mlflow.end_run() 
+
 
 
 if __name__ == "__main__":
