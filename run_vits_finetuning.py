@@ -527,7 +527,6 @@ def modify_training_args(config_template):
 
     config["project_name"] = os.getenv("project_name")
     config["report_to"] = "mlflow"
-    config["output_dir"] = os.getenv("output_dir")
     config["dataset_name"] = os.getenv("dataset_name")
     config["dataset_config_name"] = os.getenv("dataset_config_name")
     config["audio_column_name"] = os.getenv("audio_column_name")
@@ -538,8 +537,11 @@ def modify_training_args(config_template):
     config["full_generation_sample_text"] = ""
     config["push_to_hub"] = False
     config["hub_model_id"] = ""
-    config["num_train_epochs"] = 1
+    # config["num_train_epochs"] = 1
+    data_mount_path = os.getenv("data_mount_path")
+    config["output_dir"] = data_mount_path+ '/'+ os.getenv("output_dir")
     del config["speaker_id_column_name"]
+    
     lang = os.getenv("dataset_config_name")
 
     new_config_file = f"training_config_examples/finetune_{lang}.json"
@@ -560,9 +562,6 @@ def main():
         # let's parse it to get our arguments.
         new_config_file = modify_training_args(os.path.abspath(sys.argv[1]))
         model_args, data_args, training_args = parser.parse_json_file(json_file=new_config_file)
-        print("model_args",model_args )
-        print("data_args",data_args )
-        print("training_args",training_args )
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
@@ -1400,7 +1399,7 @@ def main():
 
         # Run a final round of inference.
         do_eval = training_args.do_eval
-
+        do_eval = False
         if do_eval:
             logger.info("Running final validation... ")
             generated_audio = []
