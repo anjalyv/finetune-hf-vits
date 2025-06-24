@@ -539,6 +539,7 @@ def modify_training_args(config_template):
     config["push_to_hub"] = False
     config["hub_model_id"] = ""
     config["num_train_epochs"] = 1
+    del config["speaker_id_column_name"]
     lang = os.getenv("dataset_config_name")
 
     new_config_file = f"training_config_examples/finetune_{lang}.json"
