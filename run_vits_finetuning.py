@@ -537,6 +537,7 @@ def modify_training_args(config_template):
     config["model_name_or_path"] = os.getenv("model_name_or_path")
     config["full_generation_sample_text"] = ""
     config["push_to_hub"] = False
+    config["do_eval"] = "False"
     config["hub_model_id"] = ""
     config["num_train_epochs"] = 1
     del config["speaker_id_column_name"]
