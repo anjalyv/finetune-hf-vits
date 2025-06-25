@@ -46,7 +46,7 @@ if is_wandb_available():
 experiment_name = os.getenv("project_name")
 mlflow_tracking_uri = os.getenv("mlflow_tracking_uri")
 
-mlflow.set_tracking_uri(remote_server_uri)
+mlflow.set_tracking_uri(mlflow_tracking_uri)
 
 if not mlflow.get_experiment_by_name(experiment_name):
     mlflow.create_experiment(experiment_name)
